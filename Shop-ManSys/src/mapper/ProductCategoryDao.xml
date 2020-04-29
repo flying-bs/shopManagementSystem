@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.as.dao.ProductCategoryDao">
+	<select id="queryProductCategory" resultType="com.as.entity.ProductCategory">
+		SELECT
+		product_category_id,
+		product_category_name,
+		product_category_desc,
+		priority,
+		create_time,
+		last_edit_time,
+		shop_id
+		FROM
+		tb_product_category
+		<where>
+			<if test="productCategoryCondition.shopId!=null">
+				and shop_id = #{productCategoryCondition.shopId}
+			</if>
+			<!-- <if test="shopCategoryCondition.shopCategoryDesc!=null">
+				and parent_id is not null
+			</if> -->
+		</where>
+		ORDER BY
+		priority DESC
+	</select>
+	<delete id="deleteProductCategoryById" parameterType="long">
+		DELETE FROM
+		tb_product_category
+		WHERE
+		product_category_id =
+		#{productCategoryId}
+		AND shop_id = #{shopId}
+	</delete>
+	<insert id="batchInsertProductCategory" parameterType="java.util.List">
+		INSERT INTO
+		tb_product_category(product_category_name,product_category_desc,priority,create_time,last_edit_time,shop_id)
+		VALUES
+		<foreach collection="list" item="productCategory" index="index" separator=",">
+		(#{productCategory.productCategoryName},
+		#{productCategory.productCategoryDesc},
+		#{productCategory.priority},
+		#{productCategory.createTime},
+		#{productCategory.lastEditTime},
+		#{productCategory.shopId})
+		</foreach>
+	</insert>
+	<select id="queryShopCategoryById" resultType="com.as.entity.ShopCategory">
+		SELECT
+		shop_category_id,
+		shop_category_name,
+		shop_category_desc,
+		shop_category_img,
+		priority,
+		create_time,
+		last_edit_time,
+		parent_id
+		FROM
+		tb_shop_category
+		WHERE
+		shop_category_id=#{shopCategoryId}
+	</select>
+	<select id="queryShopCategoryByIds" resultType="com.as.entity.ShopCategory">
+		SELECT
+		shop_category_id,
+		shop_category_name,
+		shop_category_desc,
+		shop_category_img,
+		priority,
+		create_time,
+		last_edit_time,
+		parent_id
+		FROM
+		tb_shop_category
+		WHERE shop_category_id IN
+		<foreach collection="list" item="shopCategoryId" open="("
+			separator="," close=")">
+			#{shopCategoryId}
+		</foreach>
+	</select>
+	<update id="updateShopCategory" parameterType="com.as.entity.ShopCategory">
+		update tb_shop_category
+		<set>
+			<if test="shopCategoryName != null">shop_category_name=#{shopCategoryName},</if>
+			<if test="shopCategoryDesc != null">shop_category_desc=#{shopCategoryDesc},</if>
+			<if test="shopCategoryImg != null">shop_category_img=#{shopCategoryImg},</if>
+			<if test="priority != null">priority=#{priority},</if>
+			<if test="lastEditTime != null">last_edit_time=#{lastEditTime},</if>
+			<if test="parentId != null">parent_id=#{parentId}</if>
+		</set>
+		where shop_category_id=#{shopCategoryId}
+	</update>
+	<delete id="batchDeleteShopCategory" parameterType="long">
+		DELETE FROM
+		tb_shop_category
+		WHERE shop_category_id IN
+		<foreach collection="list" item="shopCategoryId" open="("
+			separator="," close=")">
+			#{shopCategoryId}
+		</foreach>
+	</delete>
+</mapper>
